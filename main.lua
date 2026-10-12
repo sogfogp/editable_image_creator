@@ -20,7 +20,7 @@ function loadImg(imgs, rename)
 	table.insert(t,"end")
 	table.insert(t,'local target = game:GetService("Selection"):get()[1]')
 	if rename then
-		table.insert(t,'target.Name = "	'..imgs..'"')
+		table.insert(t,'target.Name = "'..imgs..'"')
 	end
 	table.insert(t,'target.ImageContent = Content.fromObject(ie)')
 	table.insert(t,'target:setAttribute("Width",'..img:getWidth()..')')
