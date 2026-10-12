@@ -1,10 +1,10 @@
-function loadImg(imgs)
+function loadImg(imgs, rename)
 	local start = love.timer.getTime()
 	local img = love.image.newImageData("images/"..imgs)
 	if not img then
 		error(img.. "isnt a image!")
 	end
-	local t = {"local as = game:GetService('AssetService')\nlocal ie = as:CreateEditableImage({Size = Vector2.new("..img:getWidth()..", "..img:getHeight()..")})"}
+	local t = {"local as = game:GetService('AssetService')","local ie = as:CreateEditableImage({Size = Vector2.new("..img:getWidth()..", "..img:getHeight()..")})"}
 	table.insert(t,"local l = {")
 
 	-- load all pixels
@@ -19,6 +19,9 @@ function loadImg(imgs)
 	table.insert(t, "	ie:drawRectangle(i,Vector2.one,Color3.new(c[1],c[2],c[3]),c[4],Enum.ImageCombineType.Overwrite)")
 	table.insert(t,"end")
 	table.insert(t,'local target = game:GetService("Selection"):get()[1]')
+	if rename then
+		table.insert(t,'target.Name = "	'..imgs..'"')
+	end
 	table.insert(t,'target.ImageContent = Content.fromObject(ie)')
 	table.insert(t,'target:setAttribute("Width",'..img:getWidth()..')')
 	table.insert(t,'target:setAttribute("Height",'..img:getHeight()..')')
@@ -42,13 +45,16 @@ function love.run()
 	local files = love.filesystem.getDirectoryItems("images")
 	local options = table.clone(files)
 	table.insert(options,1,"Open Folder")
-	table.insert(options,1,"Cancel")
+	table.insert(options,"Cancel")
 	local choice = love.window.showMessageBox("Selection","Select the image that you would prefer.",options,"info")
-	if choice > 2 then
-		loadImg(files[choice-2])
-	elseif choice == 2 then
+
+	if choice > 1 and choice < #options then
+		local rename = love.window.showMessageBox("Rename","Would you like to rename it to the file name?",{"No","Yes"},"info")
+		loadImg(files[choice-1], rename == 2)
+	elseif choice == 1 then
 		love.system.openURL("file://" .. love.filesystem.getSaveDirectory().."")
 	end
+	love.window.close()
 end
 
 function love.errorhandler(err)
